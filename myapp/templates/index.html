@@ -4,13 +4,158 @@
   <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/bootstrap.min.css') }}"/>
 </head>
 <body>
-<div class="container">
+<div class="container-fluid">
   <div class="row">
-      <div class="col-md-12">
-          <h1>Flaskr {{ title }}</h1>
-          <div class=metanav>
-          </div>
+    <!-- Medicine form -->
+    <div class="col-md-4">
+      <h3>Add medicine</h3>
+      <div>
+        <form method="POST" action="{{ url_for( 'add_medicine' ) }}">
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Generic name</label>
+              <div class="col-9">
+                <input class="form-control" name="generic_name" type="text" value="" placeholder="Enter generic name"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Brand name</label>
+              <div class="col-9">
+                <input class="form-control" name="brand_name" type="text" value="" placeholder="Enter brand name"/>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Measurement unit</label>
+              <div class="col-9">
+                <input class="form-control" name="measurement_unit" type="text" value="" placeholder="Enter measurement unit"/>
+              </div>
+            </div>
+            <div class="form-group row">
+                <label for="example-text-input" class="col-3 col-form-label">Form</label>
+                <div class="col-9">
+                  <input class="form-control" name="form" type="text" value="" placeholder="Enter form"/>
+                </div>
+              </div>
+            <div class="form-group row">
+              <div class="offset-sm-3 col-sm-9">
+                <button type="submit" class="btn btn-primary">Add new medicine</button>
+              </div>
+            </div>
+        </form>
       </div>
+    </div>
+    <!-- End medicine form -->
+    <!-- Doctor form -->
+    <div class="col-md-4">
+      <h3>Add doctor</h3>
+      <div>
+        <form method="POST" action="{{ url_for( 'add_doctor' ) }}">
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Name</label>
+              <div class="col-9">
+                <input class="form-control" name="doctor_name" type="text" value="" placeholder="Enter doctor name" id="example-text-input">
+              </div>
+            </div>
+            <div class="form-group row">
+              <div class="offset-sm-3 col-sm-9">
+                <button type="submit" class="btn btn-primary">Add new doctor</button>
+              </div>
+            </div>
+        </form>
+      </div>
+    </div>
+    <!-- End doctor form -->
+
+    <!-- All medicine form -->
+    <div class="col-md-4">
+      <h3>All medicine</h3>
+      <div>
+        {% for medicine in medicines %}
+          <div class="form-group row">
+            <label for="example-text-input" class="col-2 col-form-label">Name</label>
+            <div class="col-10">
+                <a href="{{ url_for( 'get_medicine_by_id', medicine_id=medicine.mongo_id )}}">
+                  <p class="form-control-static">{{medicine.generic_name}}</p>
+                </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- End all medicine form -->
+
+    <!-- All doctor form -->
+    <div class="col-md-4">
+      <h3>All doctors</h3>
+      <div>
+        {% for doctor in doctors %}
+          <div class="form-group row">
+            <label for="example-text-input" class="col-2 col-form-label">Name</label>
+            <div class="col-10">
+              <a href="{{ url_for( 'get_doctor_by_id', doctor_id=doctor.mongo_id )}}">
+               <p class="form-control-static">{{doctor.name}}</p>
+               </a>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    <!-- End doctor form -->
+
+    <!-- All preference form -->
+    <div class="col-md-4">
+      <h3>Change preference</h3>
+      <div>
+        <form method="POST" action="{{ url_for( 'change_preference' ) }}">
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Doctor</label>
+              <div class="col-9">
+                <select name="doctor" class="form-control">
+                  {% for doctor in doctors %}
+                    <option value="{{doctor.mongo_id}}">{{doctor.name}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Medicine</label>
+              <div class="col-9">
+                <select name="medicine" class="form-control">
+                  {% for medicine in medicines %}                 
+                    <option value="{{medicine.mongo_id}}">{{medicine.generic_name}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Dosage</label>
+              <div class="col-9">
+                <select name="dosage" class="form-control">
+                  {% for dosage in DOSAGE %}
+                    <option value="{{ loop.index0 }}">{{dosage}}</option>
+                  {% endfor %}
+                </select>
+              </div>
+            </div>
+            <div class="form-group row">
+                <label for="example-text-input" class="col-3 col-form-label">Duration</label>
+                <div class="col-9">
+                  <select name="duration" class="form-control">
+                    {% for duration in DURATIONS %}
+                      <option value="{{ loop.index0 }}">{{duration}}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+              </div>
+            <div class="form-group row">
+              <div class="offset-sm-3 col-sm-9">
+                <button type="submit" class="btn btn-primary">Set new preference</button>
+              </div>
+            </div>
+        </form>
+      </div>
+    </div>
+    <!-- End preference form -->
+    </div>
   </div>
   {% block body %}{% endblock %}
 </div>
