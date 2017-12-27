@@ -3,9 +3,10 @@
 from flask import render_template, request, redirect, url_for
 from flask import jsonify
 
-from myapp.app import app
+from myapp.app import app, MEDICINES_DB
 
 import json
+from collections import defaultdict
 
 # An absolute import gives us the Doctor, Preference, Medicine model
 from myapp.models import Doctor, Preference, Medicine, DOSAGE, DURATIONS
@@ -27,8 +28,28 @@ handler.setFormatter(formatter)
 # add the handlers to the logger
 logger.addHandler(handler)
 
+TOP_COUNT = 3
 
 #logging.basicConfig(filename="test.log", level=logging.DEBUG)
+
+def generate_top( xs, top=10):
+    counts = defaultdict(int)
+    for x in xs:
+        counts[x] += 1
+    return [ item[0] for item in sorted(counts.items(), reverse=True, key=lambda tup: tup[1])[:top] ]
+
+def update_tops( doctor ):
+    doctor.top_dosage = generate_top( doctor.dosage, TOP_COUNT )
+    doctor.top_duration = generate_top( doctor.duration, TOP_COUNT )
+    doctor.save()
+
+def update_doctors_medicine( medicine ):
+    doctors = Doctor.query.all()
+    for doctor in doctors:
+        preference = Preference( medicine=medicine )
+        preference.save()
+        doctor.preferences.append( preference )
+        doctor.save()
 
 @app.route('/')
 def use_app():
@@ -40,6 +61,64 @@ def use_app():
                                          doctors=doctors,
                                          DOSAGE=DOSAGE,
                                          DURATIONS=DURATIONS )
+
+@app.route('/delete/medicine', methods=['POST'])
+def delete_medicine_by_id():
+    medicine_id = request.form.get('medicine_id', None)
+
+    if medicine_id is not None:
+        for preference in Preference.query.filter( Preference.medicine.medicine_id == int( medicine_id ) ):
+            preference.remove()
+        for doctor in Doctor.query.all():
+            for preference in doctor.preferences:
+                if preference.medicine.medicine_id == int( medicine_id ):
+                    doctor.preferences.remove( preference )
+                    doctor.save()
+                    break
+        Medicine.query.filter(Medicine.medicine_id == int( medicine_id )).first().remove()
+    return redirect( url_for('use_app') )
+
+@app.route('/delete/medicine_all', methods=['POST'])
+def delete_medicine_all():
+    for medicine in Medicine.query.all():
+        medicine.remove()
+    for preference in Preference.query.all():
+        preference.remove()
+    for enum, doctor in enumerate(Doctor.query.all()):
+        for preference in doctor.preferences:
+            preference.remove()
+        doctor.preferences = list()
+        doctor.save()
+
+    return redirect( url_for('use_app') )
+
+@app.route('/add/medicine', methods=['POST'])
+def add_medicine_by_id():
+    medicine_id = request.form.get('medicine_id', None)
+    
+    for medicine in MEDICINES_DB[:10]:
+        if  medicine_id is None or ( 'id' in medicine and int(medicine.get('id')) == int( medicine_id ) ):
+            # {
+            #   "_version": 1,
+            #   "id": "2",
+            #   "genericName": "ABIRATERONE ACETATE TABLETS 250MG",
+            #   "brandName": "ZYTIGA",
+            #   "measurementUnit": "None",
+            #   "form": "Tablet"
+            # },
+            medicine_ = Medicine.query.filter( Medicine.medicine_id == int(medicine.get('id')) ).first()
+            # This medicine has already existed skip it.
+            if medicine_ is not None:
+                continue
+            medicine = Medicine( medicine_id = int( medicine.get('id') ),
+                                 generic_name = medicine.get('genericName'),
+                                 brand_name = medicine.get('brandName'),
+                                 measurement_unit = medicine.get('measurementUnit'),
+                                 form = medicine.get('form') )
+            medicine.save()
+            update_doctors_medicine( medicine )
+    return redirect( url_for('use_app') )
+
 
 @app.route('/data', methods=['GET'])
 def get_data():
@@ -64,11 +143,12 @@ def post_medicine():
 
     for preference in doctor.preferences:
         if preference.medicine.medicine_id == medicine_id:
-            print('i\'m wolf')
             preference.duration.append( duration )
             preference.dosage.append( dosage )
             preference.save()
             doctor.save()
+            # Update dosage and duration TOP.
+            update_tops( doctor )
             break
     return jsonify( Doctor.query.filter( Doctor.doctor_id == doctor_id ).first().serialize() )
 
@@ -104,15 +184,10 @@ def add_medicine():
                          measurement_unit=request.form['measurement_unit'],
                          form=request.form['form'] )
     medicine.save()
-    doctors = Doctor.query.all()
-    for doctor in doctors:
-        preference = Preference( medicine=medicine )
-        preference.save()
-        doctor.preferences.append( preference )
-        doctor.save()
+    update_doctors_medicine( medicine )
     return redirect( url_for('use_app') )
 
-@app.route('/change/preference', methods=['POST'])
+@app.route('/add/preference', methods=['POST'])
 def change_preference():
     doctor_id = request.form['doctor']
     medicine_id = request.form['medicine']
@@ -121,11 +196,12 @@ def change_preference():
     doctor = Doctor.query.get(mongo_id=doctor_id)
     for preference in doctor.preferences:
         if str(preference.medicine.mongo_id) == medicine_id:
-            print('i\'m wolf')
             preference.duration.append( DURATIONS[duration] )
             preference.dosage.append( DOSAGE[dosage] )
             preference.save()
             doctor.save()
+            # Update dosage and duration TOP.
+            update_tops( doctor )
             break
     
     return redirect( url_for('use_app') )

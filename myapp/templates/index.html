@@ -170,7 +170,64 @@
 
     <div class="col-md-4">
         <a href="{{ url_for('get_log') }}" ><h3>Get log</h3></a>
-        
+        <h3>Add medicine by id</h3>
+        <div>
+          <form method="POST" action="{{ url_for( 'add_medicine_by_id' ) }}">
+              <div class="form-group row">
+                <label for="example-text-input" class="col-3 col-form-label">Medicine id</label>
+                <div class="col-9">
+                  <input class="form-control" name="medicine_id" type="text" value="" placeholder="Enter medicine id" id="example-text-input">
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="offset-sm-3 col-sm-9">
+                  <button type="submit" class="btn btn-primary">Add medicine</button>
+                </div>
+              </div>
+          </form>
+        </div>
+
+        <h3>Add all medicine</h3>
+        <div>
+          <form method="POST" action="{{ url_for( 'add_medicine_by_id' ) }}">
+              <div class="form-group row">
+                <div class="offset-sm-3 col-sm-9">
+                  <button type="submit" class="btn btn-primary">Add all medicine</button>
+                </div>
+              </div>
+          </form>
+        </div>
+
+
+        <h3>Delete medicine by id</h3>
+        <div>
+          <form method="POST" action="{{ url_for( 'delete_medicine_by_id' ) }}">
+              <div class="form-group row">
+                <label for="example-text-input" class="col-3 col-form-label">Medicine id</label>
+                <div class="col-9">
+                  <input class="form-control" name="medicine_id" type="text" value="" placeholder="Enter medicine id" id="example-text-input">
+                </div>
+              </div>
+              <div class="form-group row">
+                <div class="offset-sm-3 col-sm-9">
+                  <button type="submit" class="btn btn-primary">Delete medicine</button>
+                </div>
+              </div>
+          </form>
+        </div>
+
+        <h3>Delete all medicine</h3>
+        <div>
+          <form method="POST" action="{{ url_for( 'delete_medicine_all' ) }}">
+              <div class="form-group row">
+                <div class="offset-sm-3 col-sm-9">
+                  <button type="submit" class="btn btn-primary">Delete all medicine</button>
+                </div>
+              </div>
+          </form>
+        </div>
+
+
     </div>
   </div>
   </div>

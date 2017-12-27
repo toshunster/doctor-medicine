@@ -1,7 +1,6 @@
 # -*- coding: utf8 -*-
 
 from myapp.app import db 
-from collections import defaultdict
 
 class Medicine(db.Document):
     medicine_id = db.IntField(required=False, default=0)
@@ -26,21 +25,15 @@ DURATIONS = [ '1 day', '5 days', 'month 1' ]
 class Preference(db.Document):
     dosage = db.ListField( db.IntField(), required=True, default=list() )
     duration = db.ListField( db.StringField(max_length=200), required=True, default=list() )
+    top_duration = db.ListField( db.StringField(max_length=200), required=True, default=list() )
+    top_dosage = db.ListField( db.StringField(max_length=200), required=True, default=list() )
     medicine = db.DocumentField( Medicine )
 
-    def leaders(self, xs, type, top=10):
-        counts = defaultdict(type)
-        for x in xs:
-            counts[x] += 1
-        return [ item[0] for item in sorted(counts.items(), reverse=True, key=lambda tup: tup[1])[:top] ]
-
     def serialize(self):
-        top3_dosage = self.leaders( self.dosage, int, 3 )
-        top3_duration = self.leaders( self.duration, int, 3 )
         return {
             "_id" : str(self.mongo_id),
-            "dosage" : top3_dosage,
-            "duration" : top3_duration,
+            "dosage" : self.top_dosage,
+            "duration" : self.top_duration,
             "medicine" : self.medicine.serialize()
         } 
 
@@ -55,4 +48,4 @@ class Doctor(db.Document):
             "id" : str(self.doctor_id),
             "name" : self.name,
             "preferences" : [ pref.serialize() for pref in self.preferences ]
-        } 
+        }
