@@ -12,6 +12,12 @@
       <div>
         <form method="POST" action="{{ url_for( 'add_medicine' ) }}">
             <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Medicine id</label>
+              <div class="col-9">
+                <input class="form-control" name="medicine_id" type="text" value="" placeholder="Enter medicine id" id="example-text-input">
+              </div>
+            </div>
+            <div class="form-group row">
               <label for="example-text-input" class="col-3 col-form-label">Generic name</label>
               <div class="col-9">
                 <input class="form-control" name="generic_name" type="text" value="" placeholder="Enter generic name"/>
@@ -49,6 +55,12 @@
       <h3>Add doctor</h3>
       <div>
         <form method="POST" action="{{ url_for( 'add_doctor' ) }}">
+            <div class="form-group row">
+              <label for="example-text-input" class="col-3 col-form-label">Doctor id</label>
+              <div class="col-9">
+                <input class="form-control" name="doctor_id" type="text" value="" placeholder="Enter doctor id" id="example-text-input">
+              </div>
+            </div>
             <div class="form-group row">
               <label for="example-text-input" class="col-3 col-form-label">Name</label>
               <div class="col-9">

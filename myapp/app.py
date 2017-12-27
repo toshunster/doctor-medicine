@@ -2,9 +2,7 @@
 # -*- coding: utf8 -*-
 
 from flask import Flask
-#from flask.ext.mongoalchemy import MongoAlchemy
 from flask_mongoalchemy import MongoAlchemy
-#from flask_mongoengine inport
 
 # Configuration.
 MONGODB_HOST = 'localhost'
