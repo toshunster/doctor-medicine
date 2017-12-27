@@ -83,9 +83,9 @@
       <div>
         {% for medicine in medicines %}
           <div class="form-group row">
-            <label for="example-text-input" class="col-2 col-form-label">Name</label>
+            <label for="example-text-input" class="col-2 col-form-label">{{medicine.medicine_id}}</label>
             <div class="col-10">
-                <a href="{{ url_for( 'get_medicine_by_id', medicine_id=medicine.mongo_id )}}">
+                <a href="{{ url_for( 'get_data', medicineid=medicine.medicine_id )}}">
                   <p class="form-control-static">{{medicine.generic_name}}</p>
                 </a>
             </div>
@@ -101,9 +101,9 @@
       <div>
         {% for doctor in doctors %}
           <div class="form-group row">
-            <label for="example-text-input" class="col-2 col-form-label">Name</label>
+            <label for="example-text-input" class="col-2 col-form-label">{{doctor.doctor_id}}</label>
             <div class="col-10">
-              <a href="{{ url_for( 'get_doctor_by_id', doctor_id=doctor.mongo_id )}}">
+              <a href="{{ url_for( 'get_data', doctorid=doctor.doctor_id )}}">
                <p class="form-control-static">{{doctor.name}}</p>
                </a>
             </div>
@@ -167,7 +167,12 @@
       </div>
     </div>
     <!-- End preference form -->
+
+    <div class="col-md-4">
+        <a href="{{ url_for('get_log') }}" ><h3>Get log</h3></a>
+        
     </div>
+  </div>
   </div>
   {% block body %}{% endblock %}
 </div>

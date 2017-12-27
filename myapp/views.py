@@ -16,7 +16,8 @@ logger = logging.getLogger(__name__)
 logger.setLevel( logging.INFO )
 
 # create a file handler
-handler = logging.FileHandler('flask.log')
+flask_log_name = 'flask.log'
+handler = logging.FileHandler( flask_log_name )
 handler.setLevel( logging.INFO )
 
 # create a logging format
@@ -41,10 +42,15 @@ def use_app():
                                          DURATIONS=DURATIONS )
 
 @app.route('/data', methods=['GET'])
-def get_medicine():
-    doctor_id = int(request.args.get('doctorid', None))
-    logger.info( "[GET] doctorid: {}".format( doctor_id ) )
-    return jsonify( Doctor.query.filter( Doctor.doctor_id == doctor_id ).first().serialize() )
+def get_data():
+    doctor_id = request.args.get('doctorid', None)
+    medicine_id = request.args.get('medicineid', None)
+    
+    if doctor_id is not None:
+        logger.info( "[GET] doctorid: {}".format( doctor_id ) )
+        return jsonify( Doctor.query.filter( Doctor.doctor_id == int(doctor_id) ).first().serialize() )
+    logger.info( "[GET] medicineid: {}".format( medicine_id ) )
+    return jsonify( Medicine.query.filter( Medicine.medicine_id == int(medicine_id) ).first().serialize() )
 
 @app.route('/model', methods=['POST'])
 def post_medicine():
@@ -55,7 +61,7 @@ def post_medicine():
     duration = json_data['doctorSelection']['duration']
     dosage = int( json_data['doctorSelection']['dosage'] )
     logger.info( "[POST] doctorid: {}, medicineid: {}, dosage: {}, duration: {}".format( doctor_id, medicine_id, dosage, duration ) )
-    
+
     for preference in doctor.preferences:
         if preference.medicine.medicine_id == medicine_id:
             print('i\'m wolf')
@@ -65,6 +71,13 @@ def post_medicine():
             doctor.save()
             break
     return jsonify( Doctor.query.filter( Doctor.doctor_id == doctor_id ).first().serialize() )
+
+@app.route('/log/get/', methods=['GET'])
+def get_log():
+    log_content = ''
+    with open( flask_log_name, 'r' ) as input_log:
+        log_content = input_log.read()
+    return "<pre>{}</pre>".format( log_content )
 
 @app.route('/add/doctor/', methods=['POST'])
 def add_doctor():
