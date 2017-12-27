@@ -10,7 +10,22 @@ import json
 # An absolute import gives us the Doctor, Preference, Medicine model
 from myapp.models import Doctor, Preference, Medicine, DOSAGE, DURATIONS
 
-#import logging
+import logging
+
+logger = logging.getLogger(__name__)
+logger.setLevel( logging.INFO )
+
+# create a file handler
+handler = logging.FileHandler('flask.log')
+handler.setLevel( logging.INFO )
+
+# create a logging format
+formatter = logging.Formatter('[%(asctime)s] [%(levelname)s]: %(message)s')
+handler.setFormatter(formatter)
+
+# add the handlers to the logger
+logger.addHandler(handler)
+
 
 #logging.basicConfig(filename="test.log", level=logging.DEBUG)
 
@@ -28,6 +43,7 @@ def use_app():
 @app.route('/data', methods=['GET'])
 def get_medicine():
     doctor_id = int(request.args.get('doctorid', None))
+    logger.info( "[GET] doctorid: {}".format( doctor_id ) )
     return jsonify( Doctor.query.filter( Doctor.doctor_id == doctor_id ).first().serialize() )
 
 @app.route('/model', methods=['POST'])
@@ -38,6 +54,8 @@ def post_medicine():
     doctor = Doctor.query.filter(Doctor.doctor_id == doctor_id).first()
     duration = json_data['doctorSelection']['duration']
     dosage = int( json_data['doctorSelection']['dosage'] )
+    logger.info( "[POST] doctorid: {}, medicineid: {}, dosage: {}, duration: {}".format( doctor_id, medicine_id, dosage, duration ) )
+    
     for preference in doctor.preferences:
         if preference.medicine.medicine_id == medicine_id:
             print('i\'m wolf')

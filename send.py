@@ -14,6 +14,7 @@ data = """{
                 "duration": "Week 1"
             }
 }"""
+url = 'http://cifromed-mai.ru:5000/model?doctorid=1&medicineid=1'
 url = 'http://localhost:5000/model?doctorid=23&medicineid=0'
 
 requests.post( url, headers={'Content-Type': 'application/json'}, data=data )
