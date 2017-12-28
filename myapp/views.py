@@ -96,7 +96,7 @@ def delete_medicine_all():
 def add_medicine_by_id():
     medicine_id = request.form.get('medicine_id', None)
     
-    for medicine in MEDICINES_DB[:10]:
+    for medicine in MEDICINES_DB:
         if  medicine_id is None or ( 'id' in medicine and int(medicine.get('id')) == int( medicine_id ) ):
             # {
             #   "_version": 1,
